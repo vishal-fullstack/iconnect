@@ -3,31 +3,34 @@ const jwt = require("jsonwebtoken");
 
 const login = async (req, res) => {
     let { email, password } = req.body;
-    let userExist = await userModel.findOne({ email, password });
-    if (userExist !== null) {
-        console.log(userExist.email)
-        let obj = {};
-        obj.name = userExist.name;
-        obj.email = userExist.email;
-        jwt.sign(obj, 'secretkey', (err, token) => {
-            if (token) {
-                res.json({
-                    status: "success",
-                    message: "Login successfully",
-                    data: userExist,
-                    token
-                })
-            } else {
-                console.log(err)
-            }
-        })
+    try {
+        let userExist = await userModel.findOne({ email, password });
+        if (userExist !== null) {
+            let obj = {};
+            obj.name = userExist.name;
+            obj.email = userExist.email;
+            jwt.sign(obj, 'secretkey', (err, token) => {
+                if (token) {
+                    res.json({
+                        status: "success",
+                        message: "Login successfully",
+                        data: userExist,
+                        token
+                    })
+                } else {
+                    console.log(err)
+                }
+            })
 
-    } else {
-        res.json({
-            status: "Failure",
-            message: "wrong credentials",
-            data: userExist
-        })
+        } else {
+            res.json({
+                status: "Failure",
+                message: "wrong credentials",
+                data: userExist
+            })
+        }
+    } catch (err) {
+        console.log("login error===>", err)
     }
 }
 
@@ -56,10 +59,7 @@ const createUser = (req, res) => {
             }
         });
     } catch (err) {
-        res.json({
-            status: 'failure',
-            message: 'something wrong happens'
-        });
+        console.log("create user error=====>", err);
     }
 }
 

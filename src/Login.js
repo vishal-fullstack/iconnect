@@ -6,6 +6,7 @@ export default function Login(props) {
         email: "",
         password: ""
     })
+    const [message, setMessage] = useState("");
 
     const onChange = (e) => {
         let name = e.target.name;
@@ -17,23 +18,29 @@ export default function Login(props) {
     const onSubmit = async () => {
         const result = await userService.login(loginDetails);
         if (result) {
-            localStorage.setItem("name", result.data.name);
-            localStorage.setItem("token", result.token);
-            props.history.push("/home")
+            if (result.status === "success") {
+                localStorage.setItem("name", result.data.name);
+                localStorage.setItem("token", result.token);
+                props.history.push("/home")
+            } else {
+                setMessage(result.message);
+                setTimeout(() => {
+                    setMessage("");
+                }, 3000)
+            }
         }
-
     }
 
     return (
         <div class="container">
-
             <div className="center-box">
-                <h3>Login</h3>
+                <h3 style={{ padding: "10px" }}>Login</h3>
                 <div className="mb-3 row text-left">
                     <label htmlFor="email" className="col-sm-2 col-form-label">Email</label>
                     <div className="col-sm-10">
                         <input type="text" name="email" className="form-control-plaintext" id="email" value={loginDetails.email} onChange={onChange} />
                     </div>
+
                 </div>
                 <div className="mb-3 row text-left">
                     <label htmlFor="password" className="col-sm-2 col-form-label">Password</label>
@@ -43,9 +50,11 @@ export default function Login(props) {
                 </div>
                 <div className="mb-3">
                     <button type="submit" class="btn btn-primary mb-3" onClick={onSubmit}>Login</button>
+                    <a href="/signup" target="_blank" style={{ float: "right" }}>Sign Up</a>
                 </div>
+                <div className="text-danger">{message}</div>
             </div>
-            <a href="/signup" target="_blank">Sign Up</a>
+
         </div>
     )
 }
